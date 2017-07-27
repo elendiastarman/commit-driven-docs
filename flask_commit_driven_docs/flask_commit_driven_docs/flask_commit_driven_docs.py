@@ -1,4 +1,5 @@
 # all the imports
+import os
 import yaml
 import pprint
 import getpass
@@ -37,16 +38,16 @@ def get_db():
 
 # View functions
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def choose_docs():
-  filenames = None
+  filenames = []
   if request.method == 'POST':
-    filenames = get_commit_filenames((request.form['username'], request.form['password']))
+    filenames = get_commit_filenames((request.form['username'], request.form['password']), debug=1)
 
     # db = get_db()
     # entries = db.entries.find()
 
-  return render_template('show_entries.html', filenames=filenames)
+  return render_template('choose_docs.html', filenames=filenames)
 
 
 # @app.route('/add', methods=['POST'])
@@ -94,28 +95,32 @@ def get_auth(config, **kwargs):
 
 
 def get_commit_filenames(auth, debug=0):
-  with open("config.yaml") as file:
+  config_path = os.path.join(os.getcwd(), "..", "config.yaml")
+  with open(config_path) as file:
     config = yaml.load(file.read())
 
   root_url = "https://api.github.com/repos/{}/{}".format(config['git']['org'], config['git']['repo'])
   branch_url = "{}/branches/{}".format(root_url, config['git']['branch'])
 
-  response = requests.get(branch_url, auth=auth).json()
+  response = requests.get(branch_url, auth=auth)
+  content = response.json()
 
   if debug & 1 and response.status_code != 200:
-    print("ERROR - Response:")
-    pprint.pprint(response)
+    print("ERROR - Url: {}\n  Content:".format(branch_url))
+    pprint.pprint(content)
 
-  print("Latest commit sha: {}".format(response['commit']['sha']))
+  print("Latest commit sha: {}".format(content['commit']['sha']))
 
-  response = requests.get(response['commit']['url'], auth=auth).json()
+  commit_url = content['commit']['url']
+  response = requests.get(commit_url, auth=auth)
+  content = response.json()
 
   if debug & 1 and response.status_code != 200:
-    print("ERROR - Response:")
-    pprint.pprint(response)
+    print("ERROR - Url: {}\n  Content:".format(commit_url))
+    pprint.pprint(content)
 
   # print("Files that changed:")
   # for file in response['files']:
   #   print(file['filename'])
 
-  return response['files']
+  return content['files']
