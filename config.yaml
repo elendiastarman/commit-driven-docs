@@ -1,0 +1,10 @@
+auth:
+  method: web_userpass
+
+git:
+  org: elendiastarman
+  repo: commit-driven-docs
+  branch: master
+
+docs:
+  path: docs
