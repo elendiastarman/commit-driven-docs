@@ -12,7 +12,7 @@ app.config.from_object(__name__)  # load config from this very file
 
 # load default config and override config from an environment variable
 app.config.update(dict(
-  DATABASE='flask_commit_driven_docs',
+  DATABASE='commit_driven_docs',
   SECRET_KEY='development key',
   USERNAME='admin',
   PASSWORD='password',
@@ -42,7 +42,7 @@ def get_db():
 def choose_docs():
   filenames = []
   if request.method == 'POST':
-    filenames = get_commit_filenames((request.form['username'], request.form['password']), debug=1)
+    filenames = get_commit_file_changes((request.form['username'], request.form['password']), debug=1)
 
     # db = get_db()
     # entries = db.entries.find()
@@ -94,7 +94,7 @@ def get_auth(config, **kwargs):
   return auth
 
 
-def get_commit_filenames(auth, debug=0):
+def get_commit_file_changes(auth, debug=0):
   config_path = os.path.join(os.getcwd(), "..", "config.yaml")
   with open(config_path) as file:
     config = yaml.load(file.read())
@@ -123,4 +123,5 @@ def get_commit_filenames(auth, debug=0):
   # for file in response['files']:
   #   print(file['filename'])
 
+  del auth  # don't keep username/password combo around
   return content['files']

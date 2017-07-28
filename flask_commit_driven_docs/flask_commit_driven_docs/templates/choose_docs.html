@@ -1,21 +1,24 @@
 {% extends "layout.html" %}
 
 {% block body %}
-  <form action="{{ url_for('choose_docs') }}" method=post>
-    <dl>
-      <dt>Username:
-      <dd><input type=text name=username>
-      <dt>Password:
-      <dd><input type=password name=password>
-      <dd><input type=submit value="Get commit filenames">
-    </dl>
-  </form>
+  {% if not session.logged_in %}
+    <form action="{{ url_for('choose_docs') }}" method=post>
+      <dl>
+        <dt>Username:
+        <dd><input type=text name=username>
+        <dt>Password:
+        <dd><input type=password name=password>
+        <dd><input type=submit value="Get commit filenames">
+      </dl>
+    </form>
+  {% endif %}
 
-  <ul class=filenames>
-    {% for filename in filenames %}
-      <li><h2>{{ filename.name }}</h2>{{ filename.patch|safe }}
-    {% else %}
-      <li><em>Unbelievable. No filenames in this commit!</em>
+  <ul class=files>
+    {% for file in files %}
+      <li>
+        <strong>{{ file.status }}: {{ file.filename }}</strong>
+        <pre>{{ file.patch }}</pre>
+      </li>
     {% endfor %}
   </ul>
 {% endblock %}
