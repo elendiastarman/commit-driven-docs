@@ -14,10 +14,13 @@
   {% endif %}
 
   <ul class=files>
-    {% for file in files %}
+    {% for doc_path, file in chosen_docs.items() %}
       <li>
-        <strong>{{ file.status }}: {{ file.filename }}</strong>
-        <pre>{{ file.patch }}</pre>
+        <strong>{{ doc_path }}</strong>
+        <ul>
+          <strong>{{ file.status }}: {{ file.filename }}</strong>
+          <pre>{{ file.patch }}</pre>
+        </ul>
       </li>
     {% endfor %}
   </ul>

@@ -40,14 +40,30 @@ def get_db():
 
 @app.route('/', methods=['GET', 'POST'])
 def choose_docs():
-  filenames = []
+  chosen_docs = []
+
   if request.method == 'POST':
-    filenames = get_commit_file_changes((request.form['username'], request.form['password']), debug=1)
+    files = get_commit_file_changes((request.form['username'], request.form['password']), debug=1)
+    files = {file['filename']: file for file in files}
 
-    # db = get_db()
-    # entries = db.entries.find()
+    db = get_db()
+    mappings = db.mappings.find()
 
-  return render_template('choose_docs.html', filenames=filenames)
+    for mapping in mappings:
+      for code_file in mapping['code_files']:
+        if code_file['filepath'] in files:
+          chosen_doc = chosen_docs.setdefault(mapping['doc_path'], {})
+
+          if 'code_files' not in chosen_doc:
+            chosen_doc['code_files'] = []
+
+          chosen_doc['code_files'].append({
+            'filepath': code_file['filepath'],
+            'patch': files[code_file['filepath']]['patch'],
+            'status': files[code_file['filepath']]['status'],
+          })
+
+  return render_template('choose_docs.html', chosen_docs=chosen_docs)
 
 
 # @app.route('/add', methods=['POST'])
