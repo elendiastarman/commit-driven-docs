@@ -1,0 +1,2 @@
+graft commit_driven_docs/templates
+graft commit_driven_docs/static
