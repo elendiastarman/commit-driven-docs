@@ -40,7 +40,7 @@ def get_db():
 
 @app.route('/', methods=['GET', 'POST'])
 def choose_docs():
-  chosen_docs = []
+  chosen_docs = {}
 
   if request.method == 'POST':
     files = get_commit_file_changes((request.form['username'], request.form['password']), debug=1)
@@ -63,6 +63,7 @@ def choose_docs():
             'status': files[code_file['filepath']]['status'],
           })
 
+  print("chosen_docs:", chosen_docs)
   return render_template('choose_docs.html', chosen_docs=chosen_docs)
 
 
